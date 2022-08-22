@@ -11,12 +11,14 @@ const register = async (req, res, next) => {
             username: req.body.username,
             email: req.body.email,
             password: hash,
-            isAdmin: req.body.isAdmin
+            isAdmin: req.body.isAdmin,
+            img: req.body.img,
         })
         const saved = await user.save();
         res.status(200).json(saved);
     } catch (err) {
         next(err);
+        console.log(err)
     }
 }
 // LOGIN
@@ -31,35 +33,48 @@ const login = async (req, res, next) => {
         const access_token = await jwt.sign({ id: user.id, isAdmin: user.isAdmin }, process.env.JWT, { expiresIn: "1h" })
 
         const { password, isAdmin, ...others } = user._doc;
-            
-        res.status(200).json({...others, access_token});
+
+        res.status(200).json({ ...others, access_token });
         // res.cookie("access_token", token, {
         //     httpOnly: true,
         // }).status(200).json({ ...others});
     } catch (err) {
         next(err);
+        console.log(err);
     }
 }
 // UPDATE USER
 const update = async (req, res, next) => {
-    try {
-        const update = await User.findByIdAndUpdate(req.params.id,
-            { $set: req.body },
-            { new: true }
-        )
-        res.status(200).json(update)
-        console.log(update)
-    } catch (err) {
-        next(err);
+    if (req.body.userId === req.user.id) {
+        if (req.body.password) {
+            const salt = await bcrypt.genSalt(10);
+            req.body.password = await bcrypt.hash(req.body.password, salt);
+        }
+        try {
+            const update = await User.findByIdAndUpdate(req.params.id,
+                { $set: req.body },
+                { new: true }
+            )
+            res.status(200).json(update)
+            console.log(update)
+        } catch (err) {
+            next(err);
+            console.log(err)
+        }
+    } else {
+        res.status(401).json("You can update only your account!");
     }
+
 }
 // GET ALL USERS
 const allUsers = async (req, res, next) => {
     try {
         const user = await User.find({})
         res.status(200).json(user)
+        console.log(user)
     } catch (err) {
         next(err);
+        console.log(err)
     }
 }
 // GET USER BY ID

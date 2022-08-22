@@ -13,6 +13,7 @@ router.post('/login', login)
 router.put('/updateUser/:id',verifyUser, update)
 // GET ALL USERS
 router.get('/allUsers',verifyAdmin, allUsers)
+// router.get('/allUsers', allUsers)
 // GET USER BY ID
 router.get('/user/:id',verifyUser, getUsersById)
 // DELETE USER
@@ -28,7 +29,7 @@ router.delete('/deleteuser/:id', verifyUser, deleteUsers)
 //     res.send('hello user! you are logged in now and can delete your account')
 // })
 // // CHECKNG THE ADMIN 
-// router.get('/checkadmin/:id', verifyAdmin, (req, res, next) => {
-//     res.send('hello admin! you are logged in now and can delete all account')
-// })
+router.get('/checkadmin/:id', verifyAdmin, (req, res, next) => {
+    res.send('hello admin! you are logged in now and can delete all account')
+})
 module.exports = router;
