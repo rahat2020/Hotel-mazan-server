@@ -23,10 +23,11 @@ const createRoom = async (req, res, next) => {
 // UPDATE ROOM 
 const updateRoom = async (req, res, next) => {
     try {
-        const room = await findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
-        re.status(200).json(room)
+        const room = await Room.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
+        res.status(200).json(room)
     } catch (err) {
         next(err);
+        console.log(err)
     }
 }
 
@@ -45,7 +46,33 @@ const deleteRoom = async (req, res, next) => {
         next(err);
     }
 }
+// DELETE ROOM FROM ROOM COLLECTION
+const rooms = async (req, res, next) => {
+    try{
+      await Room.findByIdAndDelete(req.params.id)
+        res.status(200).json('room deleted from room collection')
+    }catch (err) {
+        next(err);
+        console.log(err);
+    }
+}
+// DELETE ROOMS PARTICULAR FEILD FROM COLLECTION
+const deleteBooked = async (req, res, next)=>{
+    // const roomId = req.params.id;
 
+    try {
+        try {
+            const deleted = await Room.updateMany({},{ $unset: { "desc": " " } })
+            res.status(200).json(deleted);
+        } catch (err) {
+            next(err);
+        }
+        res.status(200).json('room has been deleted');
+    } catch (err) {
+        next(err);
+        console.log(err)
+    }
+}
 // GET ALL ROOM
 const getAllRooms = async (req, res, next) => {
     try {
@@ -82,5 +109,5 @@ const updateRoomAvail = async(req, res, next) => {
 }
  
 module.exports = {
-    createRoom, updateRoom, deleteRoom, getAllRooms, getRoomByID, updateRoomAvail
+    createRoom, updateRoom, deleteRoom, getAllRooms, getRoomByID, updateRoomAvail, rooms, deleteBooked
 }
