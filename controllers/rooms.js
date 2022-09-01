@@ -62,7 +62,10 @@ const deleteBooked = async (req, res, next)=>{
 
     try {
         try {
-            const deleted = await Room.updateMany({},{ $unset: { "desc": " " } })
+            const deleted = await Room.updateMany(
+                {},
+                { $unset: { "desc": " " } }
+                )
             res.status(200).json(deleted);
         } catch (err) {
             next(err);

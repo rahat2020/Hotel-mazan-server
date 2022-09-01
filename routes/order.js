@@ -1,15 +1,18 @@
 const Order = require('../models/Order');
+const Hotel = require('../models/Hotels');
+const Room = require('../models/Room');
 const { verifyAdmin } = require('../utils/Verifytoken');
+
 
 const router = require('express').Router();
 
 // CREATE ORDER
-router.post('/add', async (req, res, next)=> {
-    try{
+router.post('/add', async (req, res, next) => {
+    try {
         const newOrder = await Order(req.body);
-        ordersave = await newOrder.save();
+        await newOrder.save();
         res.status(200).json('order saved successfully')
-    }catch(err){
+    } catch (err) {
         next(err);
         console.log(err);
     }
@@ -17,28 +20,44 @@ router.post('/add', async (req, res, next)=> {
 
 
 // GET ORDER
-router.get('/get', async (req, res, next) => {
+router.get('/get', verifyAdmin, async (req, res, next) => {
     try {
-        const orders = await Order.find()
+        const orders = await Order.find({})
         res.status(200).json(orders)
     } catch (err) {
         console.log(err)
         next(err)
     }
 })
-// GET ORDER BY ID
-router.get('/get/:id', async (req, res, next) => {
+// GET BOOKED ROOM BY EMAIL
+router.get('/booked', async (req, res, next) => {
+    const email = req.query.email
     try {
-        const orders = await Order.findById(req.params.id)
-        res.status(200).json(orders)
+        const getroom = await Order.find({ emal: email })
+        res.status(200).json(getroom)
     } catch (err) {
-        console.log(err)
-        next(err)
+        next(err);
+        console.log(err);
     }
 })
-
-// DELETE ORDER
-router.delete('/delete/:id',verifyAdmin, async(req, res, next) =>{
+// VIEW BOOKED ROOM DETAILS BY ID
+router.get('/bookedRoom/:id', async (req, res, next) => {
+    try {
+        const hotel = await Room.findById(req.params.id);
+        const list = await Promise.all(
+            hotel.roomNumbers.map((room) => {
+                // return Room.find({room: room.roomNumbers});
+                return (room)
+            })
+        );
+        res.status(200).json(list)
+    } catch (err) {
+        next(err);
+        console.log(err);
+    }
+})
+// DELETE ORDER FROM ORDER COLLECTION 
+router.delete('/delete/:id', async (req, res, next) => {
     try {
         await Order.findByIdAndDelete(req.params.id)
         res.status(200).json('article deleted')
@@ -48,4 +67,36 @@ router.delete('/delete/:id',verifyAdmin, async(req, res, next) =>{
     }
 })
 
+// DELETE BOOKED ROOM FROM ROOM COLLECTION 
+router.get('/rmvBookedDates/:id', async (req, res, next) => {
+
+    try {
+        const room = await Room.findById(req.params.id);
+      
+        const list = await Promise.all(
+            room.roomNumbers.map((room) => {
+                return (room.unavailableDates)
+            })
+        );
+
+
+        //   const update =  await Room.updateOne(
+        //         { "_id": req.params.id },
+        //         {unavailableDates:'dates'},
+        //         {
+        //             $unset: {
+        //                 "roomNumbers.unavailableDates": "edited",
+        //                 // "roomNumbers.$.unavailableDates": " ",
+        //             },
+        //         }
+        //     );
+        res.status(200).json(list);
+        console.log(list);
+
+
+    } catch (err) {
+        next(err);
+        console.log(err);
+    }
+})
 module.exports = router;
