@@ -68,31 +68,32 @@ router.delete('/delete/:id', async (req, res, next) => {
 })
 
 // DELETE BOOKED ROOM FROM ROOM COLLECTION 
-router.get('/rmvBookedDates/:id', async (req, res, next) => {
+router.put('/rmvBookedDates/:id', async (req, res, next) => {
 
     try {
-        const room = await Room.findById(req.params.id);
-      
-        const list = await Promise.all(
-            room.roomNumbers.map((room) => {
-                return (room.unavailableDates)
-            })
-        );
+        const room = await Room.updateOne(
+                {}, {"$pull":{"roomNumbers.unavailableDates":""}}
+            );
 
+        // const list = await Promise.all(
+        //     room.roomNumbers.map((room) => {
+        //         return (room.unavailableDates)
+        //     })
+        // );
+        // const updated = await list.update({}, {$unset: {unavailableDates: ""}})
 
-        //   const update =  await Room.updateOne(
-        //         { "_id": req.params.id },
-        //         {unavailableDates:'dates'},
-        //         {
-        //             $unset: {
-        //                 "roomNumbers.unavailableDates": "edited",
-        //                 // "roomNumbers.$.unavailableDates": " ",
-        //             },
-        //         }
-        //     );
-        res.status(200).json(list);
-        console.log(list);
-
+        // const update = await Room.updateOne(
+        //     { room: req.params.id },
+        //     { unavailableDates: 'dates' },
+        //     {
+        //         $unset: {
+        //             "roomNumbers.unavailableDates": "edited",
+        //             // "roomNumbers.$.unavailableDates": " ",
+        //         },
+        //     }
+        // );
+        res.status(200).json(room);
+        console.log(room);
 
     } catch (err) {
         next(err);
