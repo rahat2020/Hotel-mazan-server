@@ -33,7 +33,7 @@ router.get('/get', verifyAdmin, async (req, res, next) => {
 router.get('/booked', async (req, res, next) => {
     const email = req.query.email
     try {
-        const getroom = await Order.findOne({ emal: email })
+        const getroom = await Order.find({ email: email })
         res.status(200).json(getroom)
     } catch (err) {
         next(err);
