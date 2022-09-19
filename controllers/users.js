@@ -45,7 +45,7 @@ const login = async (req, res, next) => {
 }
 // UPDATE USER
 const update = async (req, res, next) => {
-    if (req.body.userId === req.user.id) {
+    if (req.body.userId === req.params.id) {
         if (req.body.password) {
             const salt = await bcrypt.genSalt(10);
             req.body.password = await bcrypt.hash(req.body.password, salt);
