@@ -12,7 +12,7 @@ const verifyToken = (req, res, next) => {
         next();
       });
     } else {
-      return res.status(401).json("token is found");
+      return res.status(401).json("token is not found");
     }
 }
 
